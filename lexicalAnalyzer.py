@@ -26,7 +26,8 @@ class LexicalAnalyzer:
         self.multiCommentRegex = r"/\*(.|[\r\n])*?\*/"
         self.equalOrRegex = r'(!=|==|\>\=|<=|<|>|%|#|!|\.|;|,|\(|\)|\[|\]|{|})'
         self.charRegex = r'\s[a-zA-Z]\s|\s[a-zA-Z]\='
-        self.equalSignRegex = r'(\w|\s)(\=)(\w|\s)'
+        # self.assignmentOpRegex = r'(\w|\s)(\=)(\w|\s)'
+        self.assignmentOpRegex = r'='
 
     # Private Methods
     def _postfix(self, word):
@@ -73,7 +74,9 @@ class LexicalAnalyzer:
         return re.findall(self.identifiersRegex, line)
 
     def stringLiteral(self, line):
-        return re.findall(self.stringLiteralRegex, line)
+        strings = re.findall(self.stringLiteralRegex, line)
+        line = self._tokenizeAndRmvFromSrcCode(strings, 'STRING_LITERAL', line)
+        return line
 
     def reservedWords(self, s):
         regex = self._createRegEx(self.reserved)
@@ -130,10 +133,9 @@ class LexicalAnalyzer:
     def backSlash(self, s):
         return re.findall(r'[\\]', s)
 
-    def equal(self, s):
-        equalSigns = re.findall(self.equalSignRegex, s)
-        print(equalSigns)
-        # s = self._tokenizeAndRmvFromSrcCode(equalSigns, 'ASSIGN_OPERATOR', s)
+    def assignmentOperator(self, s):
+        equalSigns = re.findall(self.assignmentOpRegex, s)
+        s = self._tokenizeAndRmvFromSrcCode(equalSigns, 'ASSIGN_OPERATOR', s)
         return s
 
     def char(self, s):
@@ -147,7 +149,8 @@ class LexicalAnalyzer:
         sourceCode = self.floatLiterals(sourceCode)
         sourceCode = self.equalOr(sourceCode)
         sourceCode = self.intLiterals(sourceCode)
-        sourceCode = self.equal(sourceCode)
+        sourceCode = self.stringLiteral(sourceCode)
+        sourceCode = self.assignmentOperator(sourceCode)
         return sourceCode
 
     def printTokens(self):
