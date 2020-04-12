@@ -1,0 +1,7 @@
+WHILE,while
+VOLATILE,volatile
+VOID,void
+UNION,union
+TYPEDEF,typedef
+SWITCH,switch
+STRUCT,struct
